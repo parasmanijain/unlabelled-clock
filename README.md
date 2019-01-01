@@ -1,6 +1,6 @@
 # Unlabelled Clock
 
-Unlablled Clock created using Angular 7, HTML5 Canvas, MomentJSTimezone displays time zones of cities around the world when provided with their timezone. For list of timezones kindly check- https://en.wikipedia.org/wiki/List_of_tz_database_time_zones 
+Unlablled Clock created using Angular 7, HTML5 Canvas, MomentJSTimezone displays time of cities around the world when provided with their timezone. For list of timezones kindly check- https://en.wikipedia.org/wiki/List_of_tz_database_time_zones 
 
 ![alt text](img/chrome-unlabelled-clock.jpg)
 ![alt text](img/edge-unlabelled-clock.jpg)
