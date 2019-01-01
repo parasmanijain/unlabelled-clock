@@ -9,7 +9,6 @@ import { CitiesService } from './services/cities.service';
 
 export class AppComponent implements OnInit {
 
-  title = 'unlabelled-clock';
   public cities;
 
   constructor(private citiesService: CitiesService) {
