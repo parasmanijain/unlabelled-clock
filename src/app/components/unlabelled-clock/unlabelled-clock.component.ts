@@ -18,7 +18,9 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
   public date: any;
   public angle: any;
   public secHandLength: any;
-  constructor() {}
+  constructor() {
+    console.log("asdasda");
+  }
 
   ngOnInit() {
     if (!this.timezone) {

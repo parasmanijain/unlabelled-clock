@@ -18,8 +18,10 @@
 
 <div class="container-fluid">
   <div class="row">
-    @for (city of cities; track city) {
-    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4 canvas-col">
+    <div
+      *ngFor="let city of cities"
+      class="col-lg-2 col-md-3 col-sm-4 col-xs-4 canvas-col"
+    >
       <div>
         <app-unlabelled-clock
           [city]="city.name"
@@ -30,6 +32,5 @@
       </div>
       <p>{{ city.name }}, {{ city.country }}</p>
     </div>
-    }
   </div>
 </div>
