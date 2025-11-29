@@ -56,18 +56,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "unlabelled-clock:build"
+            "buildTarget": "unlabelled-clock:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "unlabelled-clock:build:production"
+              "buildTarget": "unlabelled-clock:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "unlabelled-clock:build"
+            "buildTarget": "unlabelled-clock:build"
           }
         },
         "test": {
