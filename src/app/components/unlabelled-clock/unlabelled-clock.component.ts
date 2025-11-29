@@ -1,25 +1,25 @@
-import { Component, OnInit, AfterViewInit, Input } from "@angular/core";
-import moment from "moment-timezone";
+import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
+import moment from 'moment-timezone';
 
 @Component({
-  selector: "app-unlabelled-clock",
-  templateUrl: "./unlabelled-clock.component.html",
-  styleUrls: ["./unlabelled-clock.component.scss"],
+  selector: 'app-unlabelled-clock',
+  templateUrl: './unlabelled-clock.component.html',
+  styleUrls: ['./unlabelled-clock.component.scss'],
   standalone: true,
 })
 export class UnlabelledClockComponent implements OnInit, AfterViewInit {
-  @Input() timezone;
-  @Input() city;
-  @Input() displayName: boolean;
-  @Input() displayDate: boolean;
-  public interval;
+  @Input() timezone = '';
+  @Input() city = '';
+  @Input() displayName = false;
+  @Input() displayDate = false;
+  public interval = 0;
   public canvas: any;
   public ctx: any;
   public date: any;
   public angle: any;
   public secHandLength: any;
   constructor() {
-    console.log("asdasda");
+    console.log('asdasda');
   }
 
   ngOnInit() {
@@ -27,27 +27,19 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
       this.timezone = moment.tz.guess();
     }
     if (!this.city) {
-      this.city = "local";
+      this.city = 'local';
     }
   }
 
   ngAfterViewInit() {
     this.interval = setInterval(() => {
       this.canvas = <HTMLCanvasElement>(
-        document.getElementById(
-          "unlabelledClockCanvas-" + this.timezone + "-" + this.city
-        )
+        document.getElementById('unlabelledClockCanvas-' + this.timezone + '-' + this.city)
       );
-      this.ctx = this.canvas.getContext("2d");
+      this.ctx = this.canvas.getContext('2d');
       this.date = moment().tz(this.timezone);
       this.secHandLength = 60;
-      this.showClock(
-        this.ctx,
-        this.canvas,
-        this.date,
-        this.secHandLength,
-        this.angle
-      );
+      this.showClock(this.ctx, this.canvas, this.date, this.secHandLength, this.angle);
     }, 1000);
   }
   showClock(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
@@ -65,27 +57,15 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
 
   outerDial1(ctx: any, canvas: any, secHandLength: any) {
     ctx.beginPath();
-    ctx.arc(
-      canvas.width / 2,
-      canvas.height / 2,
-      secHandLength + 10,
-      0,
-      Math.PI * 2
-    );
-    ctx.strokeStyle = "#92949C";
+    ctx.arc(canvas.width / 2, canvas.height / 2, secHandLength + 10, 0, Math.PI * 2);
+    ctx.strokeStyle = '#92949C';
     ctx.stroke();
   }
 
   outerDial2(ctx: any, canvas: any, secHandLength: any) {
     ctx.beginPath();
-    ctx.arc(
-      canvas.width / 2,
-      canvas.height / 2,
-      secHandLength + 7,
-      0,
-      Math.PI * 2
-    );
-    ctx.strokeStyle = "#929BAC";
+    ctx.arc(canvas.width / 2, canvas.height / 2, secHandLength + 7, 0, Math.PI * 2);
+    ctx.strokeStyle = '#929BAC';
     ctx.stroke();
   }
 
@@ -93,20 +73,16 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     ctx.beginPath();
     ctx.arc(canvas.width / 2, canvas.height / 2, 2, 0, Math.PI * 2);
     ctx.lineWidth = 3;
-    ctx.fillStyle = "#353535";
-    ctx.textBaseline = "middle";
-    ctx.textAlign = "center";
+    ctx.fillStyle = '#353535';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
     if (this.displayDate) {
-      ctx.fillText(
-        date.format("Do-MMM-YYYY"),
-        canvas.width / 2,
-        0.3 * canvas.height
-      );
+      ctx.fillText(date.format('Do-MMM-YYYY'), canvas.width / 2, 0.3 * canvas.height);
     }
     if (this.displayName) {
       ctx.fillText(this.city, canvas.width / 2, 0.7 * canvas.height);
     }
-    ctx.strokeStyle = "#0C3D4A";
+    ctx.strokeStyle = '#0C3D4A';
     ctx.stroke();
   }
 
@@ -118,17 +94,13 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
 
       const x1 = canvas.width / 2 + Math.cos(angle) * secHandLength;
       const y1 = canvas.height / 2 + Math.sin(angle) * secHandLength;
-      const x2 =
-        canvas.width / 2 +
-        Math.cos(angle) * (secHandLength - secHandLength / 7);
-      const y2 =
-        canvas.height / 2 +
-        Math.sin(angle) * (secHandLength - secHandLength / 7);
+      const x2 = canvas.width / 2 + Math.cos(angle) * (secHandLength - secHandLength / 7);
+      const y2 = canvas.height / 2 + Math.sin(angle) * (secHandLength - secHandLength / 7);
 
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
 
-      ctx.strokeStyle = "#466B76";
+      ctx.strokeStyle = '#466B76';
       ctx.stroke();
     }
   }
@@ -141,28 +113,18 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
 
       const x1 = canvas.width / 2 + Math.cos(angle) * secHandLength;
       const y1 = canvas.height / 2 + Math.sin(angle) * secHandLength;
-      const x2 =
-        canvas.width / 2 +
-        Math.cos(angle) * (secHandLength - secHandLength / 30);
-      const y2 =
-        canvas.height / 2 +
-        Math.sin(angle) * (secHandLength - secHandLength / 30);
+      const x2 = canvas.width / 2 + Math.cos(angle) * (secHandLength - secHandLength / 30);
+      const y2 = canvas.height / 2 + Math.sin(angle) * (secHandLength - secHandLength / 30);
 
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
 
-      ctx.strokeStyle = "#C4D1D5";
+      ctx.strokeStyle = '#C4D1D5';
       ctx.stroke();
     }
   }
 
-  showSeconds(
-    ctx: any,
-    canvas: any,
-    date: any,
-    secHandLength: any,
-    angle: any
-  ) {
+  showSeconds(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
     const sec = date.seconds();
     angle = Math.PI * 2 * (sec / 60) - (Math.PI * 2) / 4;
     ctx.lineWidth = 0.5; // HAND WIDTH.
@@ -179,22 +141,13 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     // DRAW THE TAIL OF THE SECONDS HAND.
     ctx.moveTo(canvas.width / 2, canvas.height / 2); // START FROM CENTER.
     // DRAW THE LENGTH.
-    ctx.lineTo(
-      canvas.width / 2 - Math.cos(angle) * 20,
-      canvas.height / 2 - Math.sin(angle) * 20
-    );
+    ctx.lineTo(canvas.width / 2 - Math.cos(angle) * 20, canvas.height / 2 - Math.sin(angle) * 20);
 
-    ctx.strokeStyle = "#586A73"; // COLOR OF THE HAND.
+    ctx.strokeStyle = '#586A73'; // COLOR OF THE HAND.
     ctx.stroke();
   }
 
-  showMinutes(
-    ctx: any,
-    canvas: any,
-    date: any,
-    secHandLength: any,
-    angle: any
-  ) {
+  showMinutes(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
     const min = date.minutes();
     angle = Math.PI * 2 * (min / 60) - (Math.PI * 2) / 4;
     ctx.lineWidth = 1.5; // HAND WIDTH.
@@ -207,15 +160,14 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
       canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.1
     );
 
-    ctx.strokeStyle = "#999"; // COLOR OF THE HAND.
+    ctx.strokeStyle = '#999'; // COLOR OF THE HAND.
     ctx.stroke();
   }
 
   showHours(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
     const hour = date.hours();
     const min = date.minutes();
-    angle =
-      Math.PI * 2 * ((hour * 5 + (min / 60) * 5) / 60) - (Math.PI * 2) / 4;
+    angle = Math.PI * 2 * ((hour * 5 + (min / 60) * 5) / 60) - (Math.PI * 2) / 4;
     ctx.lineWidth = 1.5; // HAND WIDTH.
 
     ctx.beginPath();
@@ -226,7 +178,7 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
       canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.5
     );
 
-    ctx.strokeStyle = "#000"; // COLOR OF THE HAND.
+    ctx.strokeStyle = '#000'; // COLOR OF THE HAND.
     ctx.stroke();
   }
 }

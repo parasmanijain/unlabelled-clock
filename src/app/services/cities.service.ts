@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 // 1️⃣ Define a model for city (recommended)
 export interface City {
@@ -10,13 +10,13 @@ export interface City {
 }
 
 @Injectable({
-  providedIn: "root",
+  providedIn: 'root',
 })
 export class CitiesService {
   constructor(private http: HttpClient) {}
 
   // 2️⃣ Use Angular 15+ typed HttpClient
   getCities(): Observable<City[]> {
-    return this.http.get<City[]>("assets/json/cities.json");
+    return this.http.get<City[]>('assets/json/cities.json');
   }
 }
