@@ -18,9 +18,6 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
   public date: any;
   public angle: any;
   public secHandLength: any;
-  constructor() {
-    console.log('asdasda');
-  }
 
   ngOnInit() {
     if (!this.timezone) {
@@ -135,7 +132,7 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     // DRAW THE LENGTH.
     ctx.lineTo(
       canvas.width / 2 + Math.cos(angle) * secHandLength,
-      canvas.height / 2 + Math.sin(angle) * secHandLength
+      canvas.height / 2 + Math.sin(angle) * secHandLength,
     );
 
     // DRAW THE TAIL OF THE SECONDS HAND.
@@ -157,7 +154,7 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     // DRAW THE LENGTH.
     ctx.lineTo(
       canvas.width / 2 + (Math.cos(angle) * secHandLength) / 1.1,
-      canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.1
+      canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.1,
     );
 
     ctx.strokeStyle = '#999'; // COLOR OF THE HAND.
@@ -175,7 +172,7 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     // DRAW THE LENGTH.
     ctx.lineTo(
       canvas.width / 2 + (Math.cos(angle) * secHandLength) / 1.5,
-      canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.5
+      canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.5,
     );
 
     ctx.strokeStyle = '#000'; // COLOR OF THE HAND.
