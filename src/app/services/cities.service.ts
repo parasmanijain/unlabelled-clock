@@ -1,22 +1,27 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// 1️⃣ Define a model for city (recommended)
+// Enhanced City interface for TypeScript 6.0 compatibility
 export interface City {
-  id: number;
-  name: string;
-  country: string;
+  readonly id: number;
+  readonly name: string;
+  readonly country: string;
+  readonly timezone?: string;
+  readonly displayDate?: boolean;
+  readonly displayName?: boolean;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class CitiesService {
-  constructor(private http: HttpClient) {}
+  private readonly apiUrl = 'assets/json/cities.json';
 
-  // 2️⃣ Use Angular 15+ typed HttpClient
+  private readonly http = inject(HttpClient);
+
+  // Use Angular 15+ typed HttpClient with proper error handling
   getCities(): Observable<City[]> {
-    return this.http.get<City[]>('assets/json/cities.json');
+    return this.http.get<City[]>(this.apiUrl);
   }
 }

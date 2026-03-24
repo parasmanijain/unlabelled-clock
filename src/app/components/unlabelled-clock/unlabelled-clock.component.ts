@@ -1,5 +1,6 @@
-import { Component, OnInit, AfterViewInit, Input } from '@angular/core';
-import moment from 'moment-timezone';
+import { Component, OnInit, AfterViewInit, Input, OnDestroy } from '@angular/core';
+import { format, getHours, getMinutes, getSeconds } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 @Component({
   selector: 'app-unlabelled-clock',
@@ -7,92 +8,108 @@ import moment from 'moment-timezone';
   styleUrls: ['./unlabelled-clock.component.scss'],
   standalone: true,
 })
-export class UnlabelledClockComponent implements OnInit, AfterViewInit {
+export class UnlabelledClockComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() timezone = '';
   @Input() city = '';
   @Input() displayName = false;
   @Input() displayDate = false;
-  public interval = 0;
-  public canvas: any;
-  public ctx: any;
-  public date: any;
-  public angle: any;
-  public secHandLength: any;
 
-  ngOnInit() {
+  private intervalId: number | null = null;
+  private canvas: HTMLCanvasElement | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
+  private readonly secHandLength = 60;
+
+  ngOnInit(): void {
     if (!this.timezone) {
-      this.timezone = moment.tz.guess();
+      this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
     if (!this.city) {
       this.city = 'local';
     }
   }
 
-  ngAfterViewInit() {
-    this.interval = setInterval(() => {
-      this.canvas = <HTMLCanvasElement>(
-        document.getElementById('unlabelledClockCanvas-' + this.timezone + '-' + this.city)
-      );
-      this.ctx = this.canvas.getContext('2d');
-      this.date = moment().tz(this.timezone);
-      this.secHandLength = 60;
-      this.showClock(this.ctx, this.canvas, this.date, this.secHandLength, this.angle);
-    }, 1000);
-  }
-  showClock(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
-    // CLEAR EVERYTHING ON THE CANVAS. RE-DRAW NEW ELEMENTS EVERY SECOND.
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    this.outerDial1(ctx, canvas, secHandLength);
-    this.outerDial2(ctx, canvas, secHandLength);
-    this.centerDial(ctx, canvas, date);
-    this.markTheHours(ctx, canvas, secHandLength, angle);
-    this.markTheSeconds(ctx, canvas, secHandLength, angle);
-    this.showSeconds(ctx, canvas, date, secHandLength, angle);
-    this.showMinutes(ctx, canvas, date, secHandLength, angle);
-    this.showHours(ctx, canvas, date, secHandLength, angle);
+  ngOnDestroy(): void {
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
   }
 
-  outerDial1(ctx: any, canvas: any, secHandLength: any) {
+  ngAfterViewInit(): void {
+    this.intervalId = window.setInterval(() => {
+      this.canvas = document.getElementById(
+        `unlabelledClockCanvas-${this.timezone}-${this.city}`,
+      ) as HTMLCanvasElement;
+
+      if (this.canvas) {
+        this.ctx = this.canvas.getContext('2d');
+        if (this.ctx) {
+          const now = new Date();
+          const zonedDate = toZonedTime(now, this.timezone);
+          this.showClock(this.ctx, this.canvas, zonedDate);
+        }
+      }
+    }, 1000);
+  }
+
+  private showClock(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, date: Date): void {
+    // CLEAR EVERYTHING ON THE CANVAS. RE-DRAW NEW ELEMENTS EVERY SECOND.
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.outerDial1(ctx, canvas);
+    this.outerDial2(ctx, canvas);
+    this.centerDial(ctx, canvas, date);
+    this.markTheHours(ctx, canvas);
+    this.markTheSeconds(ctx, canvas);
+    this.showSeconds(ctx, canvas, date);
+    this.showMinutes(ctx, canvas, date);
+    this.showHours(ctx, canvas, date);
+  }
+
+  private outerDial1(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, secHandLength + 10, 0, Math.PI * 2);
+    ctx.arc(canvas.width / 2, canvas.height / 2, this.secHandLength + 10, 0, Math.PI * 2);
     ctx.strokeStyle = '#92949C';
     ctx.stroke();
   }
 
-  outerDial2(ctx: any, canvas: any, secHandLength: any) {
+  private outerDial2(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height / 2, secHandLength + 7, 0, Math.PI * 2);
+    ctx.arc(canvas.width / 2, canvas.height / 2, this.secHandLength + 7, 0, Math.PI * 2);
     ctx.strokeStyle = '#929BAC';
     ctx.stroke();
   }
 
-  centerDial(ctx: any, canvas: any, date: any) {
+  private centerDial(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, date: Date): void {
     ctx.beginPath();
     ctx.arc(canvas.width / 2, canvas.height / 2, 2, 0, Math.PI * 2);
     ctx.lineWidth = 3;
     ctx.fillStyle = '#353535';
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
+
     if (this.displayDate) {
-      ctx.fillText(date.format('Do-MMM-YYYY'), canvas.width / 2, 0.3 * canvas.height);
+      const formattedDate = format(date, 'do-MMM-yyyy');
+      ctx.fillText(formattedDate, canvas.width / 2, 0.3 * canvas.height);
     }
     if (this.displayName) {
       ctx.fillText(this.city, canvas.width / 2, 0.7 * canvas.height);
     }
+
     ctx.strokeStyle = '#0C3D4A';
     ctx.stroke();
   }
 
-  markTheHours(ctx: any, canvas: any, secHandLength: any, angle: any) {
+  private markTheHours(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     for (let i = 0; i < 12; i++) {
-      angle = ((i - 3) * (Math.PI * 2)) / 12; // THE ANGLE TO MARK.
+      const angle = ((i - 3) * (Math.PI * 2)) / 12; // THE ANGLE TO MARK.
       ctx.lineWidth = 1; // HAND WIDTH.
       ctx.beginPath();
 
-      const x1 = canvas.width / 2 + Math.cos(angle) * secHandLength;
-      const y1 = canvas.height / 2 + Math.sin(angle) * secHandLength;
-      const x2 = canvas.width / 2 + Math.cos(angle) * (secHandLength - secHandLength / 7);
-      const y2 = canvas.height / 2 + Math.sin(angle) * (secHandLength - secHandLength / 7);
+      const x1 = canvas.width / 2 + Math.cos(angle) * this.secHandLength;
+      const y1 = canvas.height / 2 + Math.sin(angle) * this.secHandLength;
+      const x2 = canvas.width / 2 + Math.cos(angle) * (this.secHandLength - this.secHandLength / 7);
+      const y2 =
+        canvas.height / 2 + Math.sin(angle) * (this.secHandLength - this.secHandLength / 7);
 
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -102,16 +119,18 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     }
   }
 
-  markTheSeconds(ctx: any, canvas: any, secHandLength: any, angle: any) {
+  private markTheSeconds(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
     for (let i = 0; i < 60; i++) {
-      angle = ((i - 3) * (Math.PI * 2)) / 60; // THE ANGLE TO MARK.
+      const angle = ((i - 3) * (Math.PI * 2)) / 60; // THE ANGLE TO MARK.
       ctx.lineWidth = 1; // HAND WIDTH.
       ctx.beginPath();
 
-      const x1 = canvas.width / 2 + Math.cos(angle) * secHandLength;
-      const y1 = canvas.height / 2 + Math.sin(angle) * secHandLength;
-      const x2 = canvas.width / 2 + Math.cos(angle) * (secHandLength - secHandLength / 30);
-      const y2 = canvas.height / 2 + Math.sin(angle) * (secHandLength - secHandLength / 30);
+      const x1 = canvas.width / 2 + Math.cos(angle) * this.secHandLength;
+      const y1 = canvas.height / 2 + Math.sin(angle) * this.secHandLength;
+      const x2 =
+        canvas.width / 2 + Math.cos(angle) * (this.secHandLength - this.secHandLength / 30);
+      const y2 =
+        canvas.height / 2 + Math.sin(angle) * (this.secHandLength - this.secHandLength / 30);
 
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -121,9 +140,9 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     }
   }
 
-  showSeconds(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
-    const sec = date.seconds();
-    angle = Math.PI * 2 * (sec / 60) - (Math.PI * 2) / 4;
+  private showSeconds(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, date: Date): void {
+    const sec = getSeconds(date);
+    const angle = Math.PI * 2 * (sec / 60) - (Math.PI * 2) / 4;
     ctx.lineWidth = 0.5; // HAND WIDTH.
 
     ctx.beginPath();
@@ -131,8 +150,8 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     ctx.moveTo(canvas.width / 2, canvas.height / 2);
     // DRAW THE LENGTH.
     ctx.lineTo(
-      canvas.width / 2 + Math.cos(angle) * secHandLength,
-      canvas.height / 2 + Math.sin(angle) * secHandLength,
+      canvas.width / 2 + Math.cos(angle) * this.secHandLength,
+      canvas.height / 2 + Math.sin(angle) * this.secHandLength,
     );
 
     // DRAW THE TAIL OF THE SECONDS HAND.
@@ -144,35 +163,35 @@ export class UnlabelledClockComponent implements OnInit, AfterViewInit {
     ctx.stroke();
   }
 
-  showMinutes(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
-    const min = date.minutes();
-    angle = Math.PI * 2 * (min / 60) - (Math.PI * 2) / 4;
+  private showMinutes(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, date: Date): void {
+    const min = getMinutes(date);
+    const angle = Math.PI * 2 * (min / 60) - (Math.PI * 2) / 4;
     ctx.lineWidth = 1.5; // HAND WIDTH.
 
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, canvas.height / 2); // START FROM CENTER.
     // DRAW THE LENGTH.
     ctx.lineTo(
-      canvas.width / 2 + (Math.cos(angle) * secHandLength) / 1.1,
-      canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.1,
+      canvas.width / 2 + (Math.cos(angle) * this.secHandLength) / 1.1,
+      canvas.height / 2 + (Math.sin(angle) * this.secHandLength) / 1.1,
     );
 
     ctx.strokeStyle = '#999'; // COLOR OF THE HAND.
     ctx.stroke();
   }
 
-  showHours(ctx: any, canvas: any, date: any, secHandLength: any, angle: any) {
-    const hour = date.hours();
-    const min = date.minutes();
-    angle = Math.PI * 2 * ((hour * 5 + (min / 60) * 5) / 60) - (Math.PI * 2) / 4;
+  private showHours(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, date: Date): void {
+    const hour = getHours(date);
+    const min = getMinutes(date);
+    const angle = Math.PI * 2 * ((hour * 5 + (min / 60) * 5) / 60) - (Math.PI * 2) / 4;
     ctx.lineWidth = 1.5; // HAND WIDTH.
 
     ctx.beginPath();
     ctx.moveTo(canvas.width / 2, canvas.height / 2); // START FROM CENTER.
     // DRAW THE LENGTH.
     ctx.lineTo(
-      canvas.width / 2 + (Math.cos(angle) * secHandLength) / 1.5,
-      canvas.height / 2 + (Math.sin(angle) * secHandLength) / 1.5,
+      canvas.width / 2 + (Math.cos(angle) * this.secHandLength) / 1.5,
+      canvas.height / 2 + (Math.sin(angle) * this.secHandLength) / 1.5,
     );
 
     ctx.strokeStyle = '#000'; // COLOR OF THE HAND.
